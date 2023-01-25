@@ -1,0 +1,161 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "description": "Asserest tester configuration schema",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "url": {
+                "type": "string",
+                "description": "An URL address for testing can be access or not.",
+                "format": "uri"
+            },
+            "accessible": {
+                "type": "boolean",
+                "description": "Determine this URL can be access or not (after all redirection have been resolved).",
+                "default": true
+            },
+            "timeout": {
+                "type": "integer",
+                "description": "Determine when this URL assume as inaccessible in seconds later.",
+                "minimum": 10,
+                "maximum": 120,
+                "multipleOf": 5,
+                "default": 10
+            }
+        },
+        "allOf": [
+            {
+                "if": {
+                    "properties": {
+                        "accessible": {
+                            "const": true
+                        }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "try_count": {
+                            "type": "integer",
+                            "description": "Count of assertion until this URL can be fetched.",
+                            "minimum": 1,
+                            "maximum": 5,
+                            "default": 1
+                        }
+                    },
+                    "required": [
+                        "try_count"
+                    ]
+                }
+            },
+            {
+                "if": {
+                    "properties": {
+                        "url": {
+                            "pattern": "^https?"
+                        }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "method": {
+                            "type": "string",
+                            "description": "HTTP method uses for making request.",
+                            "enum": [
+                                "DELETE",
+                                "GET",
+                                "HEAD",
+                                "PATCH",
+                                "POST",
+                                "PUT"
+                            ]
+                        },
+                        "header": {
+                            "type": "object",
+                            "description": "Header uses for making HTTP request.",
+                            "patternProperties": {
+                                "^([A-Z][A-Za-z]*-)*[A-Z][A-Za-z]*$": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "anyOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "method": {
+                                        "enum": [
+                                            "DELETE",
+                                            "PATCH",
+                                            "POST",
+                                            "PUT"
+                                        ]
+                                    }
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "body": {
+                                        "description": "Body that uses for making request.",
+                                        "type": [
+                                            "object",
+                                            "string"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "body"
+                                ]
+                            }
+                        }
+                    ],
+                    "required": [
+                        "method"
+                    ]
+                }
+            },
+            {
+                "if": {
+                    "properties": {
+                        "url": {
+                            "pattern": "^ftp"
+                        }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "username": {
+                            "description": "Username of FTP server that you want to test.",
+                            "type": "string"
+                        },
+                        "password": {
+                            "description": "Password of accessing FTP server. Please ensure the username IS USES FOR TESTING PURPOSE ONLY. Asserest",
+                            "type": "string"
+                        },
+                        "security": {
+                            "description": "Specify which security is used for connecting FTP server.",
+                            "type": "string",
+                            "enum": [
+                                "FTP",
+                                "FTPS",
+                                "FTPES"
+                            ],
+                            "default": "FTP"
+                        }
+                    },
+                    "required": [
+                        "security"
+                    ]
+                }
+            }
+        ],
+        "required": [
+            "url",
+            "accessible"
+        ]
+    },
+    "additionalItems": false,
+    "minItems": 1
+}

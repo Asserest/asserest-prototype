@@ -1,0 +1,18 @@
+name: asserest
+description: Console application for verifing provided address can be access on client network
+version: 1.0.0
+environment:
+  sdk: '>=2.19.0 <3.0.0'
+dependencies:
+  path: ^1.8.0
+  http: ^0.13.5
+  yaml: ^3.1.1
+  ftpconnect: ^2.0.5
+  meta: ^1.8.0
+  quiver: ^3.2.1
+  args: ^2.3.2
+  ansicolor: ^2.0.1
+  random_string: ^2.3.1
+dev_dependencies:
+  lints: ^2.0.0
+  test: ^1.21.0
