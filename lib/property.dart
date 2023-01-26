@@ -23,7 +23,6 @@ class UnsupportUriFormatException extends FormatException {
 }
 
 class YamlFileException extends FileSystemException {
-  @override
   final YamlException _e;
 
   // ignore: unused_element

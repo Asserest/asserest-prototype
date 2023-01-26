@@ -1,25 +1,12 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
-import 'dart:math';
 
 import 'package:args/args.dart';
 import 'package:asserest/config.dart';
 import 'package:asserest/property.dart';
 import 'package:asserest/tester.dart';
 import 'package:path/path.dart' as path;
-import 'package:stack_trace/stack_trace.dart';
 
 import 'report.dart';
-
-String get _errorLogPath {
-  String? homeDir =
-      Platform.environment["HOME"] ?? Platform.environment["USERPROFILE"];
-  DateTime currentDT = DateTime.now();
-
-  return path.join(homeDir!, ".asserest",
-      "${currentDT.year}${currentDT.month}${currentDT.day}_${currentDT.hour}${currentDT.minute}${currentDT.second}_${currentDT.millisecond}${currentDT.microsecond}.log");
-}
 
 List<dynamic> _resolveConfig(List<String> arguments) {
   final ArgParser parser = ArgParser(allowTrailingOptions: false)
