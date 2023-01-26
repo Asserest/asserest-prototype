@@ -8,15 +8,15 @@ import 'package:ftpconnect/ftpconnect.dart';
 import 'package:http/http.dart'
     hide delete, get, head, patch, post, put, read, readBytes, runWithClient;
 
-import '../config.dart';
 import '../property.dart';
 import '../tester.dart';
 
 part 'ftp.dart';
 part 'http.dart';
 
-abstract class _AsserestTester<T extends AsserestProperty> extends AsyncTask<T, AsserestReport>
-    implements AsserestTester<T> {
+abstract class _AsserestTester<T extends AsserestProperty>
+    extends AsyncTask<T, AsserestReport> implements AsserestTester<T> {
+  @override
   final T property;
 
   _AsserestTester(this.property);
@@ -25,14 +25,46 @@ abstract class _AsserestTester<T extends AsserestProperty> extends AsyncTask<T, 
   T parameters() => property;
 }
 
-class AsserestParallelTester extends UnmodifiableListView<AsserestTester> {
-  final AsserestConfig _configuration;
+List<AsyncTask> _tlr() => [
+      AsserestHTTPTester._(
+          AsserestProperty.createHttp(url: Uri(), method: "GET")),
+      AsserestFTPTester._(
+          AsserestProperty.createFtp(url: Uri(), security: SecurityType.FTP))
+    ];
 
-  AsserestParallelTester._(Iterable<AsserestTester> source,
-      [this._configuration = const AsserestConfig()])
-      : super(source);
+abstract class AsserestParallelTester<T extends AsserestTester>
+    implements UnmodifiableListView<T> {
+  // ignore: unused_element
+  const AsserestParallelTester._();
 
-  Stream<AsserestReport> runAllTest() async* {
-    
+  factory AsserestParallelTester(Iterable<T> source, {int threads = 1}) =>
+      _AsserestParallelTester(source.cast<_AsserestTester>(), threads)
+          as AsserestParallelTester<T>;
+
+  Stream<AsserestReport> runAllTest();
+
+  Future<bool> close();
+}
+
+class _AsserestParallelTester extends UnmodifiableListView<_AsserestTester>
+    implements AsserestParallelTester<_AsserestTester> {
+  final AsyncExecutor _ae;
+
+  _AsserestParallelTester(super.source, [int threads = 1])
+      : _ae = AsyncExecutor(
+            sequential: false,
+            parallelism: threads > Platform.numberOfProcessors
+                ? Platform.numberOfProcessors
+                : threads,
+            taskTypeRegister: _tlr);
+
+  @override
+  Stream<AsserestReport> runAllTest() {
+    return Stream.fromFutures(_ae.executeAll(this));
+  }
+
+  @override
+  Future<bool> close() {
+    return _ae.close();
   }
 }

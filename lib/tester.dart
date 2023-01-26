@@ -1,8 +1,10 @@
-import 'package:async_task/async_task.dart';
+import 'dart:convert';
+
 import 'package:meta/meta.dart';
 
-import '../config.dart';
 import '../property.dart';
+
+export 'testers/tester.dart';
 
 @immutable
 class AsserestReport {
@@ -16,9 +18,11 @@ class AsserestReport {
       {"url": url.toString(), "expected": expected, "actual": actual};
 
   @override
-  String toString() => "$toMap()";
+  String toString() => jsonEncode(toMap());
 }
 
-abstract class AsserestTester<T extends AsserestProperty> implements AsyncTask<T, AsserestReport> {
+abstract class AsserestTester<T extends AsserestProperty> {
+  T get property;
+
   const AsserestTester._();
 }

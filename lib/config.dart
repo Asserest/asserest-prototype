@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:meta/meta.dart';
 
 /// Determine action when internal [Error] thrown.

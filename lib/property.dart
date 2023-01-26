@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:asserest/config.dart';
 import 'package:ftpconnect/ftpconnect.dart' as ftpconn;
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path show isAbsolute;
@@ -39,7 +40,7 @@ abstract class AsserestProperty {
       : assert(accessible ^ (tryCount == null)),
         assert(timeout >= 10 && timeout <= 120 && timeout % 5 == 0);
 
-  factory AsserestProperty.http(
+  static AsserestHTTPProperty createHttp(
           {required Uri url,
           required String method,
           Map<String, String> headers = const {},
@@ -50,7 +51,7 @@ abstract class AsserestProperty {
       AsserestHTTPProperty._(url, method, UnmodifiableMapView(headers), body,
           accessible, timeout, tryCount);
 
-  factory AsserestProperty.ftp(
+  static AsserestFTPProperty createFtp(
           {required Uri url,
           String? username,
           String? password,
@@ -178,16 +179,23 @@ class AsserestProperties<T extends AsserestProperty>
   /// Parse [YamlList] to the property.
   ///
   /// If [ignoreError] is `true`, it ignores the property that [Error] thrown.
-  factory AsserestProperties.parse(YamlList list, {bool ignoreError = false}) {
+  factory AsserestProperties.parse(YamlList list,
+      {ConfigErrorAction errorAction = ConfigErrorAction.stop}) {
     List<T> lap = [];
 
     for (var node in list) {
       try {
         lap.add(AsserestProperty.parse(node) as T);
       } on Error {
-        if (!ignoreError) {
-          // Stop if error is specified.
-          rethrow;
+        switch (errorAction) {
+          case ConfigErrorAction.stop:
+            // Stop if error is specified.
+            rethrow;
+          case ConfigErrorAction.ignore:
+            continue;
+          default:
+            throw UnimplementedError(
+                "Error action $errorAction is not defined");
         }
       }
     }
@@ -197,16 +205,20 @@ class AsserestProperties<T extends AsserestProperty>
 
   /// Load [AsserestProperties] from [config] [String].
   static Future<AsserestProperties<T>> load<T extends AsserestProperty>(
-          String config) =>
+          String config,
+          {ConfigErrorAction errorAction = ConfigErrorAction.stop}) =>
       Isolate.run<AsserestProperties<T>>(
-          () => AsserestProperties.parse(loadYamlNode(config) as YamlList),
+          () => AsserestProperties.parse(loadYamlNode(config) as YamlList,
+              errorAction: errorAction),
           debugName: "Tester string reader");
 
   /// Load [AsserestProperties] from YAML file.
   ///
   /// The file extension must be either `.yml` or `.yaml`.
   static Future<AsserestProperties<T>> loadFromFile<T extends AsserestProperty>(
-          String path) =>
+          String path,
+          {Encoding encoding = utf8,
+          ConfigErrorAction errorAction = ConfigErrorAction.stop}) =>
       Isolate.run<AsserestProperties<T>>(() async {
         File confFile = File(path);
 
@@ -218,7 +230,8 @@ class AsserestProperties<T extends AsserestProperty>
         }
 
         return AsserestProperties.parse(
-            loadYamlNode(await confFile.readAsString(encoding: utf8))
-                as YamlList);
+            loadYamlNode(await confFile.readAsString(encoding: encoding))
+                as YamlList,
+            errorAction: errorAction);
       }, debugName: "Tester file reader");
 }

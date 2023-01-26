@@ -23,17 +23,21 @@ class AsserestFTPTester extends _AsserestTester<AsserestFTPProperty> {
         showLog: false);
 
     try {
+      bool result = false;
+
       await ftpConn.connect();
 
-      for (String dirName in property.url.pathSegments) {
-        if (!await ftpConn.changeDirectory(dirName)) {
-          if (!await ftpConn.existFile(dirName)) {
-            return AsserestReport(property.url, property.accessible, false);
+      for (int count = 0; count < (property.tryCount ?? 1); count++) {
+        for (String dirName in property.url.pathSegments) {
+          if (!await ftpConn.changeDirectory(dirName)) {
+            result = await ftpConn.existFile(dirName);
+          } else {
+            result = true;
           }
         }
       }
 
-      return AsserestReport(property.url, property.accessible, true);
+      return AsserestReport(property.url, property.accessible, result);
     } on FTPConnectException {
       return AsserestReport(property.url, property.accessible, false);
     } catch (err) {

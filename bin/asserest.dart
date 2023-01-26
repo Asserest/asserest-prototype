@@ -1,7 +1,13 @@
+import 'dart:io';
+
 import 'package:args/args.dart';
 import 'package:asserest/config.dart';
 
 void main(List<String> arguments) {
+  if (Platform.numberOfProcessors <= 1) {
+    throw UnsupportedError("Single processor cannot execute Asserest");
+  }
+
   final ArgParser testParser = ArgParser()
     ..addOption("thread",
         abbr: "t",
