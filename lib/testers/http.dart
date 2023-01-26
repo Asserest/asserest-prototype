@@ -1,23 +1,5 @@
 part of 'tester.dart';
 
-class UnknownHTTPMethodException implements Exception {
-  final String method;
-  final String message;
-
-  UnknownHTTPMethodException._(this.method,
-      [this.message = "This method is undefined on HTTP request."]);
-
-  @override
-  String toString() {
-    StringBuffer buf = StringBuffer("UnknownHTTPMethodException: ")
-      ..write(message)
-      ..writeln("\tApplied method: ")
-      ..write(method);
-
-    return "$buf";
-  }
-}
-
 class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
   AsserestHTTPTester._(super.property);
 
@@ -31,7 +13,13 @@ class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
   }
 
   @override
-  Future<AsserestReport> runTest({AsserestConfig config = const AsserestConfig()}) async {
+  AsyncTask<AsserestHTTPProperty, AsserestReport> instantiate(
+          AsserestHTTPProperty parameters,
+          [Map<String, SharedData>? sharedData]) =>
+      AsserestHTTPTester._(parameters);
+
+  @override
+  FutureOr<AsserestReport> run() async {
     try {
       bool result = false;
       int count = 0;
@@ -42,7 +30,7 @@ class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
 
       return AsserestReport(property.url, property.accessible, result);
     } catch (err) {
-      if (err is ArgumentError && err.invalidValue == "method" && config.configErrorAction == ConfigErrorAction.stop) {
+      if (err is ArgumentError && err.name == "method") {
         rethrow;
       }
 

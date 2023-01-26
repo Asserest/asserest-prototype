@@ -1,18 +1,19 @@
 part of 'tester.dart';
 
-class _FTPInaccessible implements Exception {
-  const _FTPInaccessible();
-}
-
 /// Determine accessibility on FTP server by checking the given address.
-/// 
-/// This only test list permission only and it does not check read
-/// (downloading file) or write (uploading file) permission.
+///
+/// It only depends on accessibility of given path.
 class AsserestFTPTester extends _AsserestTester<AsserestFTPProperty> {
   AsserestFTPTester._(super.property);
 
   @override
-  Future<AsserestReport> runTest({AsserestConfig config = const AsserestConfig()}) async {
+  AsyncTask<AsserestFTPProperty, AsserestReport> instantiate(
+          AsserestFTPProperty parameters,
+          [Map<String, SharedData>? sharedData]) =>
+      AsserestFTPTester._(property);
+
+  @override
+  FutureOr<AsserestReport> run() async {
     FTPConnect ftpConn = FTPConnect(property.url.host,
         port: property.url.port,
         user: property.username ?? "anonymous",
@@ -22,28 +23,22 @@ class AsserestFTPTester extends _AsserestTester<AsserestFTPProperty> {
         showLog: false);
 
     try {
-      bool connected = await ftpConn.connect();
-      if (!connected) {
-        throw _FTPInaccessible();
-      }
+      await ftpConn.connect();
 
       for (String dirName in property.url.pathSegments) {
         if (!await ftpConn.changeDirectory(dirName)) {
           if (!await ftpConn.existFile(dirName)) {
-            // When provided path is neither a directory nor a file.
-            throw _FTPInaccessible();
+            return AsserestReport(property.url, property.accessible, false);
           }
         }
       }
 
       return AsserestReport(property.url, property.accessible, true);
+    } on FTPConnectException {
+      return AsserestReport(property.url, property.accessible, false);
     } catch (err) {
       return AsserestReport(
-          property.url,
-          property.accessible,
-          (err is FTPConnectException || err is _FTPInaccessible)
-              ? false // Either connection or inaccessible
-              : null); // Internal errors throw.
+          property.url, property.accessible, null); // Internal errors throw.
     } finally {
       try {
         // Terminate connection no matter is established or not.

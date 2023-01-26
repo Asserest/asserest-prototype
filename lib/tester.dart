@@ -1,3 +1,4 @@
+import 'package:async_task/async_task.dart';
 import 'package:meta/meta.dart';
 
 import '../config.dart';
@@ -18,9 +19,6 @@ class AsserestReport {
   String toString() => "$toMap()";
 }
 
-abstract class AsserestTester {
+abstract class AsserestTester<T extends AsserestProperty> implements AsyncTask<T, AsserestReport> {
   const AsserestTester._();
-
-  /// Execute assertion on accessing the given [AsserestProperty.url] value.
-  Future<AsserestReport> runTest({AsserestConfig config});
 }
