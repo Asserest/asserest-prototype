@@ -24,12 +24,9 @@ class AsserestConfig {
   /// This value must be non-zero positive.
   final int maxThreads;
 
-  final bool stackTraceLog;
-
   /// Parse configuration options
   const AsserestConfig(
       {this.configErrorAction = ConfigErrorAction.stop,
-      this.maxThreads = 1,
-      this.stackTraceLog = false})
+      this.maxThreads = 1})
       : assert(maxThreads > 0);
 }

@@ -32,10 +32,6 @@ List<dynamic> _resolveConfig(List<String> arguments) {
         help: "Basically just ignore URL that causing error during parsing.",
         defaultsTo: false,
         negatable: false)
-    /*..addFlag("stack-trace-log",
-        help: "Get stack trace log file under the home directory.",
-        defaultsTo: false,
-        negatable: false)*/
     ..addFlag("help",
         abbr: "h",
         help: "Print usage of asserest.",
@@ -84,11 +80,11 @@ List<dynamic> _resolveConfig(List<String> arguments) {
 
   return [
     AsserestConfig(
-        maxThreads: tNo,
-        configErrorAction: args["ignore-parse-error"]
-            ? ConfigErrorAction.ignore
-            : ConfigErrorAction.stop,
-        /*stackTraceLog: args["stack-trace-log"]*/),
+      maxThreads: tNo,
+      configErrorAction: args["ignore-parse-error"]
+          ? ConfigErrorAction.ignore
+          : ConfigErrorAction.stop, /*stackTraceLog: args["stack-trace-log"]*/
+    ),
     args.arguments.last
   ];
 }
@@ -121,23 +117,8 @@ void main(List<String> arguments) async {
       ..writeln("\t====ASSEREST RESULT====\t")
       ..writeln("Success: ${analyser.successCount}")
       ..writeln("Failure: ${analyser.failureCount}")
-      ..writeln("Error: ${analyser.errorCount}");
-
-    if (analyser.hasError && config.stackTraceLog) {
-      final ccap = Chain.current(5);
-      final filename = _errorLogPath;
-
-      File logFile = File(filename);
-      logFile = await logFile.create(recursive: true);
-      logFile = await logFile.writeAsString(ccap.toString(),
-          mode: FileMode.writeOnly, encoding: utf8);
-
-      buf
-        ..writeln()
-        ..writeln("The error log file save into $filename");
-    }
-
-    buf.writeln();
+      ..writeln("Error: ${analyser.errorCount}")
+      ..writeln();
 
     print(buf);
   }
