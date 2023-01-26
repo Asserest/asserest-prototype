@@ -8,17 +8,37 @@ final AnsiPen ansiPen = AnsiPen();
 extension AsserestReportPrinter on AsserestReport {
   void printReport() {
     try {
+      String expTerm = expected ? "accessible" : "inaccessible"; 
+
+      void passPrint() {
+        ansiPen.xterm(46);
+        print(ansiPen("[Pass]\t\t$url\t\tExpected $expTerm"));
+      }
+
+      void failPrint() {
+        ansiPen.xterm(9);
+        print(ansiPen("[Fail]\t\t$url\t\tExpected $expTerm"));
+      }
+
       switch (actual) {
         case AsserestActualResult.success:
-          ansiPen.xterm(46);
-          print(ansiPen("[Pass]\t\t$url"));
+          if (expected) {
+            passPrint();
+          } else {
+            failPrint();
+          }
           break;
         case AsserestActualResult.failure:
-          ansiPen.xterm(9);
-          print(ansiPen("[Fail]\t\t$url"));
+          if (expected) {
+            failPrint();
+          } else {
+            passPrint();
+          }
           break;
         case AsserestActualResult.error:
-          ansiPen..yellow(bg: true)..black(bold: true);
+          ansiPen
+            ..yellow(bg: true)
+            ..black(bold: true);
           print(ansiPen("$url cannot be tested due to internal error"));
           break;
       }
@@ -31,11 +51,16 @@ extension AsserestReportPrinter on AsserestReport {
 class AsserestReportAnalyser extends ListBase<AsserestReport> {
   final List<AsserestReport> _report = [];
 
-  static bool _findSuccess(AsserestReport element) => element.actual == AsserestActualResult.success;
+  static bool _findSuccess(AsserestReport element) =>
+      (element.expected && element.actual == AsserestActualResult.success) ||
+      (!element.expected && element.actual == AsserestActualResult.failure);
 
-  static bool _findFailed(AsserestReport element) => element.actual == AsserestActualResult.failure;
+  static bool _findFailed(AsserestReport element) =>
+      (!element.expected && element.actual == AsserestActualResult.success) ||
+      (element.expected && element.actual == AsserestActualResult.failure);
 
-  static bool _findError(AsserestReport element) => element.actual == AsserestActualResult.error;
+  static bool _findError(AsserestReport element) =>
+      element.actual == AsserestActualResult.error;
 
   AsserestReportAnalyser();
 

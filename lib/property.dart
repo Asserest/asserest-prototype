@@ -6,7 +6,6 @@ import 'dart:isolate';
 import 'package:asserest/config.dart';
 import 'package:ftpconnect/ftpconnect.dart' as ftpconn;
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path show isAbsolute;
 import 'package:quiver/core.dart' as quiver;
 import 'package:yaml/yaml.dart'
     hide loadYaml, loadYamlDocument, loadYamlDocuments, loadYamlStream;
@@ -18,6 +17,26 @@ class UnsupportUriFormatException extends FormatException {
 
   UnsupportUriFormatException._relative(Uri uri)
       : super("URL must be an absolute path.", uri);
+
+  @override
+  String get message => "${super.message} (Parsed source $source)";
+}
+
+class YamlFileException extends FileSystemException {
+  @override
+  final YamlException _e;
+
+  // ignore: unused_element
+  YamlFileException._(this._e, super.message, [super.path, super.osError]);
+
+  @override
+  String get message {
+    final buf = StringBuffer(super.message)
+      ..write(" with following YamlException:")
+      ..writeln("$_e");
+
+    return buf.toString();
+  }
 }
 
 /// Property uses for assertion in general.
@@ -40,6 +59,7 @@ abstract class AsserestProperty {
       : assert(accessible ^ (tryCount == null)),
         assert(timeout >= 10 && timeout <= 120 && timeout % 5 == 0);
 
+  /// Construct [AsserestHTTPProperty] which uses for testing HTTP(S) connections.
   static AsserestHTTPProperty createHttp(
           {required Uri url,
           required String method,
@@ -51,6 +71,7 @@ abstract class AsserestProperty {
       AsserestHTTPProperty._(url, method, UnmodifiableMapView(headers), body,
           accessible, timeout, tryCount);
 
+  /// Construct [AsserestFTPProperty] which uses for testing FTP connections.
   static AsserestFTPProperty createFtp(
           {required Uri url,
           String? username,
@@ -66,17 +87,27 @@ abstract class AsserestProperty {
   factory AsserestProperty.parse(YamlMap map) {
     Uri url = Uri.parse(map["url"]);
 
-    if (!path.isAbsolute("$url")) {
+    if (url.host.isEmpty) {
       // Do not uses relative URL for assertion.
       throw UnsupportUriFormatException._relative(url);
     }
 
     bool accessible = map["accessible"];
     int timeout = map["timeout"] ?? 10; // Default timeout value if omitted.
+    if (timeout < 10) {
+      timeout = 10;
+    } else if (timeout % 5 != 0) {
+      timeout -= timeout % 5;
+    } else if (timeout > 120) {
+      timeout = 120;
+    }
     int? tryCount;
 
     if (accessible) {
-      tryCount = map["tryCount"] ?? 1;
+      tryCount = map["try_count"];
+      if (tryCount == null) {
+        throw ArgumentError.notNull("try_count");
+      }
     }
 
     switch (url.scheme) {
@@ -222,16 +253,28 @@ class AsserestProperties<T extends AsserestProperty>
       Isolate.run<AsserestProperties<T>>(() async {
         File confFile = File(path);
 
-        if (!RegExp(r"\.ya?ml$").hasMatch(path.toLowerCase())) {
+        if (!RegExp(r"\.ya?ml$", caseSensitive: false).hasMatch(path)) {
+          /*
+            The file must be either .yml or .yaml ended.
+
+            Parsing invalid file extension will throw FileSystemException,
+            no matter the content is YAML or not.
+           */
           throw FileSystemException(
               "Only accept file extension either .yml or .yaml", path);
         } else if (!await confFile.exists()) {
+          // File does not existed.
           throw FileSystemException("This file does not existed", path);
         }
 
-        return AsserestProperties.parse(
-            loadYamlNode(await confFile.readAsString(encoding: encoding))
-                as YamlList,
-            errorAction: errorAction);
+        try {
+          return AsserestProperties.parse(
+              loadYamlNode(await confFile.readAsString(encoding: encoding))
+                  as YamlList,
+              errorAction: errorAction);
+        } on YamlException catch (ymlerr) {
+          throw YamlFileException._(
+              ymlerr, "The file content is not a standard YAML format", path);
+        }
       }, debugName: "Tester file reader");
 }

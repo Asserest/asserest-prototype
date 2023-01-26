@@ -46,6 +46,9 @@ class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
 
       return AsserestReport(property.url, property.accessible,
           result ? AsserestActualResult.success : AsserestActualResult.failure);
+    } on ClientException {
+      return AsserestReport(
+          property.url, property.accessible, AsserestActualResult.failure);
     } catch (err) {
       if (err is ArgumentError && err.name == "method") {
         rethrow;

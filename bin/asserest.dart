@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:args/args.dart';
 import 'package:asserest/config.dart';
@@ -21,20 +22,54 @@ String get _errorLogPath {
 }
 
 List<dynamic> _resolveConfig(List<String> arguments) {
-  final ArgParser parser = ArgParser()
+  final ArgParser parser = ArgParser(allowTrailingOptions: false)
     ..addOption("thread",
         abbr: "t",
         help:
             "Decide number of processors uses for assertion (At least one for base program and another one for assertion).",
-        defaultsTo: "2")
+        defaultsTo: "1")
     ..addFlag("ignore-parse-error",
         help: "Basically just ignore URL that causing error during parsing.",
-        defaultsTo: false)
-    ..addFlag("stack-trace-log",
+        defaultsTo: false,
+        negatable: false)
+    /*..addFlag("stack-trace-log",
         help: "Get stack trace log file under the home directory.",
-        defaultsTo: false);
+        defaultsTo: false,
+        negatable: false)*/
+    ..addFlag("help",
+        abbr: "h",
+        help: "Print usage of asserest.",
+        defaultsTo: false,
+        negatable: false);
 
-  final ArgResults args = parser.parse(arguments);
+  ArgResults args;
+
+  try {
+    args = parser.parse(arguments);
+  } on FormatException catch (err) {
+    print(err.message);
+    exit(-1);
+  }
+
+  if (args["help"]) {
+    String binName =
+        Platform.executable.split(Platform.isWindows ? "\\" : "/").last;
+    if (RegExp(r"^dart", dotAll: false, caseSensitive: Platform.isWindows)
+        .hasMatch(binName)) {
+      binName += " ${path.join('.', 'bin', 'asserest.dart')}";
+    }
+
+    StringBuffer buf = StringBuffer("Usage: ")
+      ..write(binName)
+      ..write(" [options] ")
+      ..write("<YAML asserest script>")
+      ..writeln()
+      ..writeln("Options:")
+      ..writeln(parser.usage);
+
+    print(buf);
+    exit(0);
+  }
 
   int tNo;
   try {
@@ -50,11 +85,11 @@ List<dynamic> _resolveConfig(List<String> arguments) {
   return [
     AsserestConfig(
         maxThreads: tNo,
-        configErrorAction: args["ignore-error"]
+        configErrorAction: args["ignore-parse-error"]
             ? ConfigErrorAction.ignore
             : ConfigErrorAction.stop,
-        stackTraceLog: args["stack-trace-log"]),
-    args.arguments.first
+        /*stackTraceLog: args["stack-trace-log"]*/),
+    args.arguments.last
   ];
 }
 
@@ -64,16 +99,20 @@ void main(List<String> arguments) async {
   final config = result[0] as AsserestConfig;
   final testPath = result[1] as String;
 
-  AsserestProperties aprop = await AsserestProperties.loadFromFile(testPath);
+  AsserestProperties aprop = await AsserestProperties.loadFromFile(testPath,
+      errorAction: config.configErrorAction);
   AsserestParallelTester tester =
       AsserestParallelTester.fromProperties(aprop, threads: config.maxThreads);
   AsserestReportAnalyser analyser = AsserestReportAnalyser();
 
-  Stream<AsserestReport> testProc = Chain.capture(tester.runAllTest);
-  testProc.listen((report) {
+  Stream<AsserestReport> testProc = tester.runAllTest();
+
+  void receiveData(AsserestReport report) {
     report.printReport();
     analyser.add(report);
-  }, onDone: () async {
+  }
+
+  void onComplete() async {
     await tester.close();
 
     StringBuffer buf = StringBuffer()
@@ -81,23 +120,27 @@ void main(List<String> arguments) async {
       ..writeln()
       ..writeln("\t====ASSEREST RESULT====\t")
       ..writeln("Success: ${analyser.successCount}")
-      ..writeln("Failure: ${analyser.errorCount}")
+      ..writeln("Failure: ${analyser.failureCount}")
       ..writeln("Error: ${analyser.errorCount}");
 
-    if (analyser.hasError) {
+    if (analyser.hasError && config.stackTraceLog) {
       final ccap = Chain.current(5);
       final filename = _errorLogPath;
-      
-      await Isolate.run(() async {
-        File logFile = File(filename);
-        await logFile.writeAsString(ccap.toString(), mode: FileMode.writeOnly, encoding: utf8);
-      });
 
-      buf..writeln()..writeln("The error log file save into $filename");
+      File logFile = File(filename);
+      logFile = await logFile.create(recursive: true);
+      logFile = await logFile.writeAsString(ccap.toString(),
+          mode: FileMode.writeOnly, encoding: utf8);
+
+      buf
+        ..writeln()
+        ..writeln("The error log file save into $filename");
     }
 
     buf.writeln();
 
     print(buf);
-  });
+  }
+
+  testProc.listen(receiveData).onDone(onComplete);
 }
