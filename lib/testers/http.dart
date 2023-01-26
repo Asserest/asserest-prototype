@@ -31,7 +31,7 @@ class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
   }
 
   @override
-  Future<AsserestReport> runTest({AsserestConfig? config}) async {
+  Future<AsserestReport> runTest({AsserestConfig config = const AsserestConfig()}) async {
     try {
       bool result = false;
       int count = 0;
@@ -42,7 +42,7 @@ class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
 
       return AsserestReport(property.url, property.accessible, result);
     } catch (err) {
-      if (err is ArgumentError && err.invalidValue == "method") {
+      if (err is ArgumentError && err.invalidValue == "method" && config.configErrorAction == ConfigErrorAction.stop) {
         rethrow;
       }
 

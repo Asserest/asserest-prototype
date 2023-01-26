@@ -12,7 +12,7 @@ class AsserestFTPTester extends _AsserestTester<AsserestFTPProperty> {
   AsserestFTPTester._(super.property);
 
   @override
-  Future<AsserestReport> runTest({AsserestConfig? config}) async {
+  Future<AsserestReport> runTest({AsserestConfig config = const AsserestConfig()}) async {
     FTPConnect ftpConn = FTPConnect(property.url.host,
         port: property.url.port,
         user: property.username ?? "anonymous",

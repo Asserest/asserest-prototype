@@ -22,5 +22,5 @@ abstract class AsserestTester {
   const AsserestTester._();
 
   /// Execute assertion on accessing the given [AsserestProperty.url] value.
-  Future<AsserestReport> runTest({AsserestConfig? config});
+  Future<AsserestReport> runTest({AsserestConfig config});
 }
