@@ -1,6 +1,7 @@
 name: asserest
 description: Console application for verifing provided address can be access on client network
 version: 1.0.0-beta.1
+repository: https://github.com/rk0cc/asserest
 environment:
   sdk: '>=2.19.0 <3.0.0'
 dependencies:
