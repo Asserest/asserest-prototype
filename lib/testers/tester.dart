@@ -41,6 +41,18 @@ abstract class AsserestParallelTester<T extends AsserestTester>
       _AsserestParallelTester(source.cast<_AsserestTester>(), threads)
           as AsserestParallelTester<T>;
 
+  factory AsserestParallelTester.fromProperties(AsserestProperties properties, {int threads = 1}) =>
+  _AsserestParallelTester(properties.map<_AsserestTester>((e) {
+    switch (e.runtimeType) {
+      case AsserestHTTPProperty:
+        return AsserestHTTPTester._(e as AsserestHTTPProperty);
+      case AsserestFTPProperty:
+        return AsserestFTPTester._(e as AsserestFTPProperty);
+      default:
+        throw TypeError();
+    }
+  })) as AsserestParallelTester<T>;
+
   Stream<AsserestReport> runAllTest();
 
   Future<bool> close();
