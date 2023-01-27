@@ -37,12 +37,14 @@ class AsserestFTPTester extends _AsserestTester<AsserestFTPProperty> {
         }
       }
 
-      return AsserestReport(property.url, property.accessible, result ? AsserestActualResult.success : AsserestActualResult.failure);
+      return _AsserestReport(property.url, property.accessible,
+          result ? AsserestActualResult.success : AsserestActualResult.failure);
     } on FTPConnectException {
-      return AsserestReport(property.url, property.accessible, AsserestActualResult.failure);
+      return _AsserestReport(
+          property.url, property.accessible, AsserestActualResult.failure);
     } catch (err) {
-      return AsserestReport(
-          property.url, property.accessible, AsserestActualResult.error); // Internal errors throw.
+      return _AsserestReport(property.url, property.accessible,
+          AsserestActualResult.error); // Internal errors throw.
     } finally {
       try {
         // Terminate connection no matter is established or not.

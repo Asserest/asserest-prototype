@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 //import 'dart:isolate';
 
@@ -7,6 +8,7 @@ import 'package:async_task/async_task.dart';
 import 'package:ftpconnect/ftpconnect.dart';
 import 'package:http/http.dart'
     hide delete, get, head, patch, post, put, read, readBytes, runWithClient;
+import 'package:meta/meta.dart';
 
 import '../property.dart';
 import '../tester.dart';
@@ -23,6 +25,27 @@ abstract class _AsserestTester<T extends AsserestProperty>
 
   @override
   T parameters() => property;
+}
+
+@immutable
+class _AsserestReport implements AsserestReport {
+  @override
+  final Uri url;
+
+  @override
+  final bool expected;
+  
+  @override
+  final AsserestActualResult actual;
+
+  const _AsserestReport(this.url, this.expected, this.actual);
+
+  @override
+  Map<String, dynamic> toMap() =>
+      {"url": url.toString(), "expected": expected, "actual": actual.name};
+
+  @override
+  String toString() => "AsserestReport$jsonEncode(toMap())";
 }
 
 List<AsyncTask> _tlr() => [

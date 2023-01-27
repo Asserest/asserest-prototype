@@ -10,33 +10,9 @@ import 'package:quiver/core.dart' as quiver;
 import 'package:yaml/yaml.dart'
     hide loadYaml, loadYamlDocument, loadYamlDocuments, loadYamlStream;
 
-/// It thrown when [Uri] has invalid format.
-class UnsupportUriFormatException extends FormatException {
-  UnsupportUriFormatException._scheme(Uri uri)
-      : super("This URL's scheme does not supported yet.", uri);
-
-  UnsupportUriFormatException._relative(Uri uri)
-      : super("URL must be an absolute path.", uri);
-
-  @override
-  String get message => "${super.message} (Parsed source $source)";
-}
-
-class YamlFileException extends FileSystemException {
-  final YamlException _e;
-
-  // ignore: unused_element
-  YamlFileException._(this._e, super.message, [super.path, super.osError]);
-
-  @override
-  String get message {
-    final buf = StringBuffer(super.message)
-      ..write(" with following YamlException:")
-      ..writeln("$_e");
-
-    return buf.toString();
-  }
-}
+part 'properties/exceptions.dart';
+part 'properties/http.dart';
+part 'properties/ftp.dart';
 
 /// Property uses for assertion in general.
 @immutable
@@ -147,57 +123,6 @@ abstract class AsserestProperty {
   @override
   bool operator ==(Object other) =>
       other is AsserestProperty && hashCode == other.hashCode;
-}
-
-/// [AsserestProperty] for HTTP protocol.
-class AsserestHTTPProperty extends AsserestProperty {
-  /// Method uses for making HTTP request.
-  final String method;
-
-  /// Header that uses for request.
-  final UnmodifiableMapView<String, String> headers;
-
-  /// Body content for making requedt.
-  ///
-  /// It must be `null` when using `GET` and `HEAD` methods and required
-  /// either [Map] or [String]. If using [Map], it will be convert to
-  /// JSON [String] automatically.
-  final dynamic body;
-
-  const AsserestHTTPProperty._(Uri url, this.method, this.headers, this.body,
-      bool accessible, int timeout, int? tryCount)
-      : super._(url, accessible, timeout, tryCount);
-
-  @override
-  int get hashCode => super.hashCode + quiver.hash3(method, headers, body);
-
-  @override
-  bool operator ==(Object other) =>
-      other is AsserestHTTPProperty && hashCode == other.hashCode;
-}
-
-/// [AsserestProperty] for FTP protocol.
-class AsserestFTPProperty extends AsserestProperty {
-  /// Username for accessing FTP server.
-  final String? username;
-
-  /// Password for accessing FTP server.
-  final String? password;
-
-  /// Specify [ftpconn.SecurityType] uses for FTP connection.
-  final ftpconn.SecurityType security;
-
-  const AsserestFTPProperty._(Uri url, this.username, this.password,
-      this.security, bool accessible, int timeout, int? tryCount)
-      : super._(url, accessible, timeout, tryCount);
-
-  @override
-  int get hashCode =>
-      super.hashCode + quiver.hash3(username, password, security);
-
-  @override
-  bool operator ==(Object other) =>
-      other is AsserestFTPProperty && hashCode == other.hashCode;
 }
 
 /// Collect multiple [AsserestProperty] to unmodifiable [Iterable] form for batch

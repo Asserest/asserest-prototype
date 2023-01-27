@@ -44,17 +44,17 @@ class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
         result = await _makeResponse() == 200;
       }
 
-      return AsserestReport(property.url, property.accessible,
+      return _AsserestReport(property.url, property.accessible,
           result ? AsserestActualResult.success : AsserestActualResult.failure);
     } on ClientException {
-      return AsserestReport(
+      return _AsserestReport(
           property.url, property.accessible, AsserestActualResult.failure);
     } catch (err) {
       if (err is ArgumentError && err.name == "method") {
         rethrow;
       }
 
-      return AsserestReport(
+      return _AsserestReport(
           property.url, property.accessible, AsserestActualResult.error);
     }
   }
