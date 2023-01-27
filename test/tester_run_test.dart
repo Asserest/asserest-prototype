@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:asserest/property.dart';
 import 'package:asserest/tester.dart';
 import 'package:test/test.dart';
@@ -17,7 +19,9 @@ void main() {
               .contains(report.actual),
           isTrue);
     }));
-  });
+  },
+      skip: ["CI", "GITHUB_ACTION", "RELEASE_TEST"]
+          .every(Platform.environment.containsKey));
 
   tearDownAll(() async {
     try {

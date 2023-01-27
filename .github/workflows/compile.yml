@@ -1,0 +1,36 @@
+name: Compile
+on:
+  release:
+    types:
+      - created
+jobs:
+  compile:
+    name: Compile
+    env:
+      RELEASE_TEST: "1"
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows
+          - ubuntu
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Dart environment
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - name: Get dependencies
+        run: dart pub get
+      - name: Run test
+        run: dart test
+      - name: Compile to binary
+        run: dart compile exe bin/asserest.dart --output='out/'
+      - name: Upload binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: asserest-${{ matrix }}
+          path: out/
+          retention-days: 7
