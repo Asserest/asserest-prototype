@@ -1,0 +1,4 @@
+- url: https://www.google.com
+  accessible: true
+  try_count: 1
+  method: GET

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -5,6 +6,7 @@ import 'package:asserest/config.dart';
 import 'package:asserest/property.dart';
 import 'package:asserest/tester.dart';
 import 'package:path/path.dart' as path;
+import 'package:sprintf/sprintf.dart';
 
 import 'report.dart';
 
@@ -88,7 +90,9 @@ void main(List<String> arguments) async {
       AsserestParallelTester.fromProperties(aprop, threads: config.maxThreads);
   AsserestReportAnalyser analyser = AsserestReportAnalyser();
 
-  Stream<AsserestReport> testProc = tester.runAllTest();
+  print(sprintf("%-10s %-48s %-13s %-13s", ["Status", "URL", "Expected", "Actual"]));
+
+  StreamSubscription<AsserestReport> testProc = tester.runAllTest();
 
   void receiveData(AsserestReport report) {
     report.printReport();
@@ -110,5 +114,11 @@ void main(List<String> arguments) async {
     print(buf);
   }
 
-  testProc.listen(receiveData).onDone(onComplete);
+  testProc..onData(receiveData)
+    ..onDone(onComplete)
+    ..onError((err) async {
+      await tester.close();
+
+      print(err);
+    });
 }

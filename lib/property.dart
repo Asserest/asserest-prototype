@@ -31,12 +31,12 @@ abstract class AsserestProperty {
 
   AsserestProperty._(this.url, this.accessible, this.timeout, this.tryCount)
       : assert(timeout >= 10 && timeout <= 120 && timeout % 5 == 0) {
-    if (accessible ^ (tryCount != null)) {
+    if (!(accessible ^ (tryCount == null))) {
       if (accessible) {
         throw ArgumentError.notNull("tryCount");
-      } else {
+      } else if (!accessible && (tryCount != null)) {
         throw ArgumentError.value(tryCount, "tryCount",
-            "tryCount must be null if expected to inaccessible");
+              "tryCount must be null if expected to inaccessible");
       }
     }
   }
@@ -90,14 +90,7 @@ abstract class AsserestProperty {
     } else if (timeout > 120) {
       timeout = 120;
     }
-    int? tryCount;
-
-    if (accessible) {
-      tryCount = map["try_count"];
-      if (tryCount == null) {
-        throw ArgumentError.notNull("try_count");
-      }
-    }
+    int? tryCount = map["try_count"];
 
     switch (url.scheme) {
       case "http":

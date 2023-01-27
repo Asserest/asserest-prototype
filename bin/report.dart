@@ -2,22 +2,27 @@ import 'dart:collection';
 
 import 'package:ansicolor/ansicolor.dart';
 import 'package:asserest/tester.dart' show AsserestReport, AsserestActualResult;
+import 'package:sprintf/sprintf.dart';
 
 final AnsiPen ansiPen = AnsiPen();
+
+extension on AsserestActualResult {
+  String get displayName => "${name[0].toUpperCase()}${name.substring(1)}";
+}
 
 extension AsserestReportPrinter on AsserestReport {
   void printReport() {
     try {
-      String expTerm = expected ? "accessible" : "inaccessible"; 
+      String expTerm = expected ? "Success" : "Failure"; 
 
       void passPrint() {
         ansiPen.xterm(46);
-        print(ansiPen("[Pass]\t\t$url\t\tExpected $expTerm"));
+        print(ansiPen(sprintf("%-10s %-48s %-13s %-13s", ["[Pass]", "$url", expTerm, actual.displayName])));
       }
 
       void failPrint() {
         ansiPen.xterm(9);
-        print(ansiPen("[Fail]\t\t$url\t\tExpected $expTerm"));
+        print(ansiPen(sprintf("%-10s %-48s %-13s %-13s", ["[Fail]", "$url", expTerm, actual.displayName])));
       }
 
       switch (actual) {

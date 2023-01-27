@@ -34,7 +34,7 @@ class _AsserestReport implements AsserestReport {
 
   @override
   final bool expected;
-  
+
   @override
   final AsserestActualResult actual;
 
@@ -49,10 +49,10 @@ class _AsserestReport implements AsserestReport {
 }
 
 List<AsyncTask> _tlr() => [
-      AsserestHTTPTester._(
-          AsserestProperty.createHttp(url: "example.com", method: "GET", tryCount: 1)),
-      AsserestFTPTester._(
-          AsserestProperty.createFtp(url: "example.com", security: SecurityType.FTP))
+      AsserestHTTPTester._(AsserestProperty.createHttp(
+          url: "example.com", method: "GET", tryCount: 1)),
+      AsserestFTPTester._(AsserestProperty.createFtp(
+          url: "example.com", security: SecurityType.FTP, tryCount: 1))
     ];
 
 /// Run multiple [AsserestTester] in parallel.
@@ -68,24 +68,25 @@ abstract class AsserestParallelTester<T extends AsserestTester>
           as AsserestParallelTester<T>;
 
   /// Assign parallel tester from [AsserestProperties] and specify [threads].
-  factory AsserestParallelTester.fromProperties(AsserestProperties properties, {int threads = 1}) =>
-  _AsserestParallelTester(properties.map<_AsserestTester>((e) {
-    switch (e.runtimeType) {
-      case AsserestHTTPProperty:
-        return AsserestHTTPTester._(e as AsserestHTTPProperty);
-      case AsserestFTPProperty:
-        return AsserestFTPTester._(e as AsserestFTPProperty);
-      default:
-        throw TypeError();
-    }
-  })) as AsserestParallelTester<T>;
+  factory AsserestParallelTester.fromProperties(AsserestProperties properties,
+          {int threads = 1}) =>
+      _AsserestParallelTester(properties.map<_AsserestTester>((e) {
+        switch (e.runtimeType) {
+          case AsserestHTTPProperty:
+            return AsserestHTTPTester._(e as AsserestHTTPProperty);
+          case AsserestFTPProperty:
+            return AsserestFTPTester._(e as AsserestFTPProperty);
+          default:
+            throw TypeError();
+        }
+      })) as AsserestParallelTester<T>;
 
-  /// Activate all testes in parallel and return [Stream] for receiving [AsserestReport].
-  Stream<AsserestReport> runAllTest();
+  /// Activate all testes in parallel and return [StreamSubscription] for receiving [AsserestReport].
+  StreamSubscription<AsserestReport> runAllTest();
 
-  /// Terminate this parallel process.
+  /// Close current connection.
   /// 
-  /// It must be called inside [StreamSubscription.onDone] from [runAllTest].
+  /// It must be placed on [StreamSubscription.onDone] and [StreamSubscription.onError].
   Future<bool> close();
 }
 
@@ -99,15 +100,21 @@ class _AsserestParallelTester extends UnmodifiableListView<_AsserestTester>
             parallelism: threads > Platform.numberOfProcessors
                 ? Platform.numberOfProcessors
                 : threads,
-            taskTypeRegister: _tlr);
+            taskTypeRegister: _tlr,
+            name: "Asserest parallel test runner");
 
   @override
-  Stream<AsserestReport> runAllTest() {
-    return Stream.fromFutures(_ae.executeAll(this));
+  Future<bool> close() async {
+    try {
+      return await _ae.close();
+    } catch (err) {
+      return false;
+    }
   }
 
   @override
-  Future<bool> close() {
-    return _ae.close();
+  StreamSubscription<AsserestReport> runAllTest() {
+    return Stream.fromFutures(_ae.executeAll(this))
+        .listen(null);
   }
 }
