@@ -1,4 +1,4 @@
-- url: https://www.google.com
+- url: https://dummy.restapiexample.com/api/v1/employees
   accessible: true
   try_count: 1
   method: GET

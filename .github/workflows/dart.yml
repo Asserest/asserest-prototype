@@ -1,0 +1,43 @@
+name: Dart
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "bin/**/*.dart"
+      - "lib/**/*.dart"
+      - "test/**/*.dart"
+      - "test_assets/**/*.yaml"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/dart.yml"
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    name: Testing
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        os:
+          - windows-latest
+          - macos-latest
+          - ubuntu-latest
+        sdk:
+          - stable
+          - beta
+          - dev
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Dart environment
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - name: Get dependencies
+        run: dart pub get
+      - name: Run test
+        run: dart test
