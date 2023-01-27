@@ -1,3 +1,3 @@
-## 1.0.0 (TBA)
+## 1.0.0-beta.1
 
-* Under construction
+* First pre-release of Asserest

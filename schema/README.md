@@ -20,7 +20,7 @@ Editing `settings.json` under `.vscode` in opened workspace directory (**DO NOT*
 ```json
 {
     "yaml.schemas": {
-        "(URI address of asserest_schema.json)": "/path/to/config/file.yaml"
+        "https://raw.githubusercontent.com/rk0cc/asserest/main/schema/asserest_schema.json": "/path/to/config/file.yaml"
     }
 }
 ```
