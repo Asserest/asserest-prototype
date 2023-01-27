@@ -10,6 +10,8 @@ import 'package:sprintf/sprintf.dart';
 
 import 'report.dart';
 
+const _version = "1.0.0-beta.1";
+
 List<dynamic> _resolveConfig(List<String> arguments) {
   final ArgParser parser = ArgParser(allowTrailingOptions: false)
     ..addOption("thread",
@@ -21,6 +23,7 @@ List<dynamic> _resolveConfig(List<String> arguments) {
         help: "Basically just ignore URL that causing error during parsing.",
         defaultsTo: false,
         negatable: false)
+    ..addFlag("version", abbr: "v", help: "Print Asserest version", defaultsTo: false, negatable: false)
     ..addFlag("help",
         abbr: "h",
         help: "Print usage of asserest.",
@@ -33,10 +36,14 @@ List<dynamic> _resolveConfig(List<String> arguments) {
     args = parser.parse(arguments);
   } on FormatException catch (err) {
     print(err.message);
-    exit(-1);
+    print("Type 'asserest -h' to display command usages");
+    exit(1);
   }
 
-  if (args["help"]) {
+  if (args["version"]) {
+    print(_version);
+    exit(0);
+  } else if (args["help"]) {
     String binName =
         Platform.executable.split(Platform.isWindows ? "\\" : "/").last;
     if (RegExp(r"^dart", dotAll: false, caseSensitive: Platform.isWindows)
@@ -67,15 +74,21 @@ List<dynamic> _resolveConfig(List<String> arguments) {
     tNo = 1;
   }
 
-  return [
-    AsserestConfig(
-      maxThreads: tNo,
-      configErrorAction: args["ignore-parse-error"]
-          ? ConfigErrorAction.ignore
-          : ConfigErrorAction.stop, /*stackTraceLog: args["stack-trace-log"]*/
-    ),
-    args.arguments.last
-  ];
+  try {
+    return [
+      AsserestConfig(
+        maxThreads: tNo,
+        configErrorAction: args["ignore-parse-error"]
+            ? ConfigErrorAction.ignore
+            : ConfigErrorAction.stop, /*stackTraceLog: args["stack-trace-log"]*/
+      ),
+      args.arguments.last
+    ];
+  } on StateError catch (err) {
+    print(err.message);
+    print("Type 'asserest -h' to display command usages");
+    exit(2);
+  }
 }
 
 void main(List<String> arguments) async {
