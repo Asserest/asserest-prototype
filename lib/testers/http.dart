@@ -24,6 +24,20 @@ class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
     Request req = Request(property.method, property.url)
       ..followRedirects = true;
 
+    req.headers.addAll(property.headers);
+    assert(["GET", "HEAD"].contains(property.method.toUpperCase()) || property.body != null);
+    if (property.body != null) {
+      String ctx;
+      
+      if (property.body is Map || property.body is List) {
+        ctx = jsonEncode(property.body);
+      } else {
+        ctx = property.body!;
+      }
+
+      req.body = ctx;
+    }
+
     StreamedResponse resp = await Client().send(req);
 
     return resp.statusCode;

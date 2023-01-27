@@ -79,6 +79,13 @@
                                 }
                             },
                             "additionalProperties": false
+                        },
+                        "body": {
+                            "description": "Body that uses for making request.",
+                            "type": [
+                                "object",
+                                "string"
+                            ]
                         }
                     },
                     "anyOf": [
@@ -96,15 +103,6 @@
                                 }
                             },
                             "then": {
-                                "properties": {
-                                    "body": {
-                                        "description": "Body that uses for making request.",
-                                        "type": [
-                                            "object",
-                                            "string"
-                                        ]
-                                    }
-                                },
                                 "required": [
                                     "body"
                                 ]

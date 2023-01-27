@@ -88,11 +88,17 @@ abstract class AsserestProperty {
     switch (url.scheme) {
       case "http":
       case "https":
+        String method = map["method"];
+        var body = map["body"];
+        if (!["GET", "HEAD"].contains(method.toUpperCase()) && body == null) {
+          throw ArgumentError.value(body, 'body',
+              "Illegal request with null body on $method request.");
+        }
         return AsserestHTTPProperty._(
             url,
-            map["method"],
+            method,
             UnmodifiableMapView(map["header"] ?? {}),
-            map["body"],
+            body,
             accessible,
             timeout,
             tryCount);
