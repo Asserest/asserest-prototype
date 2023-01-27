@@ -85,7 +85,7 @@ abstract class AsserestParallelTester<T extends AsserestTester>
   StreamSubscription<AsserestReport> runAllTest();
 
   /// Close current connection.
-  /// 
+  ///
   /// It must be placed on [StreamSubscription.onDone] and [StreamSubscription.onError].
   Future<bool> close();
 }
@@ -114,7 +114,6 @@ class _AsserestParallelTester extends UnmodifiableListView<_AsserestTester>
 
   @override
   StreamSubscription<AsserestReport> runAllTest() {
-    return Stream.fromFutures(_ae.executeAll(this))
-        .listen(null);
+    return Stream.fromFutures(_ae.executeAll(this)).listen(null);
   }
 }

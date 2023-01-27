@@ -10,13 +10,15 @@ class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
     Request req = Request(property.method, property.url)
       ..followRedirects = true;
 
-    req.headers.addAll(property.headers.map((key, value) => MapEntry(key.toLowerCase(), value)));
+    req.headers.addAll(property.headers
+        .map((key, value) => MapEntry(key.toLowerCase(), value)));
     req.headers.putIfAbsent("user-agent", () => _userAgentValue);
 
-    assert(["GET", "HEAD"].contains(property.method.toUpperCase()) || property.body != null);
+    assert(["GET", "HEAD"].contains(property.method.toUpperCase()) ||
+        property.body != null);
     if (property.body != null) {
       String ctx;
-      
+
       if (property.body is Map || property.body is List) {
         ctx = jsonEncode(property.body);
       } else {

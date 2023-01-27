@@ -90,7 +90,8 @@ void main(List<String> arguments) async {
       AsserestParallelTester.fromProperties(aprop, threads: config.maxThreads);
   AsserestReportAnalyser analyser = AsserestReportAnalyser();
 
-  print(sprintf("%-10s %-48s %-13s %-13s", ["Status", "URL", "Expected", "Actual"]));
+  print(sprintf(
+      "%-10s %-48s %-13s %-13s", ["Status", "URL", "Expected", "Actual"]));
 
   StreamSubscription<AsserestReport> testProc = tester.runAllTest();
 
@@ -114,7 +115,8 @@ void main(List<String> arguments) async {
     print(buf);
   }
 
-  testProc..onData(receiveData)
+  testProc
+    ..onData(receiveData)
     ..onDone(onComplete)
     ..onError((err) async {
       await tester.close();

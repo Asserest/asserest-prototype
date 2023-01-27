@@ -36,7 +36,7 @@ abstract class AsserestProperty {
         throw ArgumentError.notNull("tryCount");
       } else if (!accessible && (tryCount != null)) {
         throw ArgumentError.value(tryCount, "tryCount",
-              "tryCount must be null if expected to inaccessible");
+            "tryCount must be null if expected to inaccessible");
       }
     }
   }
@@ -51,14 +51,8 @@ abstract class AsserestProperty {
           bool accessible = true,
           int timeout = 10,
           int? tryCount}) =>
-      AsserestHTTPProperty._(
-          https ? Uri.https(url) : Uri.http(url),
-          method,
-          UnmodifiableMapView(headers),
-          body,
-          accessible,
-          timeout,
-          tryCount);
+      AsserestHTTPProperty._(https ? Uri.https(url) : Uri.http(url), method,
+          UnmodifiableMapView(headers), body, accessible, timeout, tryCount);
 
   /// Construct [AsserestFTPProperty] which uses for testing FTP connections.
   static AsserestFTPProperty createFtp(

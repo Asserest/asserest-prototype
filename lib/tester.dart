@@ -8,9 +8,11 @@ export 'testers/tester.dart';
 enum AsserestActualResult {
   /// It matched expected result.
   success,
+
   /// It does not stastified expected result.
   failure,
-  /// Any unexpected exception which not related to 
+
+  /// Any unexpected exception which not related to
   /// communication error.
   error
 }
@@ -20,8 +22,10 @@ enum AsserestActualResult {
 abstract class AsserestReport {
   /// Tested URL address.
   Uri get url;
+
   /// A boolean for expected it can be access or not.
   bool get expected;
+
   /// An actual scenrino on local device when accessing
   /// given [url].
   AsserestActualResult get actual;

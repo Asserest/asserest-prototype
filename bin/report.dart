@@ -13,16 +13,18 @@ extension on AsserestActualResult {
 extension AsserestReportPrinter on AsserestReport {
   void printReport() {
     try {
-      String expTerm = expected ? "Success" : "Failure"; 
+      String expTerm = expected ? "Success" : "Failure";
 
       void passPrint() {
         ansiPen.xterm(46);
-        print(ansiPen(sprintf("%-10s %-48s %-13s %-13s", ["[Pass]", "$url", expTerm, actual.displayName])));
+        print(ansiPen(sprintf("%-10s %-48s %-13s %-13s",
+            ["[Pass]", "$url", expTerm, actual.displayName])));
       }
 
       void failPrint() {
         ansiPen.xterm(9);
-        print(ansiPen(sprintf("%-10s %-48s %-13s %-13s", ["[Fail]", "$url", expTerm, actual.displayName])));
+        print(ansiPen(sprintf("%-10s %-48s %-13s %-13s",
+            ["[Fail]", "$url", expTerm, actual.displayName])));
       }
 
       switch (actual) {

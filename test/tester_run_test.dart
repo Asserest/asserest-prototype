@@ -22,7 +22,7 @@ void main() {
   tearDownAll(() async {
     try {
       await mockTester.close();
-    // ignore: empty_catches
+      // ignore: empty_catches
     } catch (err) {}
   });
 }

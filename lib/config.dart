@@ -18,7 +18,6 @@ class AsserestConfig {
   /// Default is [ConfigErrorAction.stop].
   final ConfigErrorAction configErrorAction;
 
-
   /// Number of processor uses for assertion.
   ///
   /// This value must be non-zero positive.
@@ -26,7 +25,6 @@ class AsserestConfig {
 
   /// Parse configuration options
   const AsserestConfig(
-      {this.configErrorAction = ConfigErrorAction.stop,
-      this.maxThreads = 1})
+      {this.configErrorAction = ConfigErrorAction.stop, this.maxThreads = 1})
       : assert(maxThreads > 0);
 }

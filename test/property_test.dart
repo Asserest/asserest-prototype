@@ -54,10 +54,7 @@ void main() {
             returnsNormally);
         expect(
             () => AsserestProperty.createHttp(
-                url: "example.com",
-                method: "GET",
-                body: 111,
-                tryCount: 1),
+                url: "example.com", method: "GET", body: 111, tryCount: 1),
             throwsA(isA<TypeError>()));
       });
     });
