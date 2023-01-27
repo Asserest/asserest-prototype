@@ -1,5 +1,7 @@
 part of 'tester.dart';
 
+const String _userAgentValue = "Asserest 1.0.x";
+
 /// [AsserestTester] uses for testing HTTP connection.
 class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
   AsserestHTTPTester._(super.property);
@@ -8,7 +10,9 @@ class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
     Request req = Request(property.method, property.url)
       ..followRedirects = true;
 
-    req.headers.addAll(property.headers);
+    req.headers.addAll(property.headers.map((key, value) => MapEntry(key.toLowerCase(), value)));
+    req.headers.putIfAbsent("user-agent", () => _userAgentValue);
+
     assert(["GET", "HEAD"].contains(property.method.toUpperCase()) || property.body != null);
     if (property.body != null) {
       String ctx;
