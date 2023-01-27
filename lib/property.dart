@@ -29,34 +29,48 @@ abstract class AsserestProperty {
   /// Determine retry count for expected accessible for [url].
   final int? tryCount;
 
-  const AsserestProperty._(
-      this.url, this.accessible, this.timeout, this.tryCount)
-      : assert(accessible ^ (tryCount == null)),
-        assert(timeout >= 10 && timeout <= 120 && timeout % 5 == 0);
+  AsserestProperty._(this.url, this.accessible, this.timeout, this.tryCount)
+      : assert(timeout >= 10 && timeout <= 120 && timeout % 5 == 0) {
+    if (accessible ^ (tryCount != null)) {
+      if (accessible) {
+        throw ArgumentError.notNull("tryCount");
+      } else {
+        throw ArgumentError.value(tryCount, "tryCount",
+            "tryCount must be null if expected to inaccessible");
+      }
+    }
+  }
 
   /// Construct [AsserestHTTPProperty] which uses for testing HTTP(S) connections.
   static AsserestHTTPProperty createHttp(
-          {required Uri url,
+          {bool https = false,
+          required String url,
           required String method,
           Map<String, String> headers = const {},
           dynamic body,
           bool accessible = true,
           int timeout = 10,
           int? tryCount}) =>
-      AsserestHTTPProperty._(url, method, UnmodifiableMapView(headers), body,
-          accessible, timeout, tryCount);
+      AsserestHTTPProperty._(
+          https ? Uri.https(url) : Uri.http(url),
+          method,
+          UnmodifiableMapView(headers),
+          body,
+          accessible,
+          timeout,
+          tryCount);
 
   /// Construct [AsserestFTPProperty] which uses for testing FTP connections.
   static AsserestFTPProperty createFtp(
-          {required Uri url,
+          {required String url,
           String? username,
           String? password,
           required ftpconn.SecurityType security,
           bool accessible = true,
           int timeout = 10,
           int? tryCount}) =>
-      AsserestFTPProperty._(
-          url, username, password, security, accessible, timeout, tryCount);
+      AsserestFTPProperty._(Uri.parse("ftp://$url"), username, password,
+          security, accessible, timeout, tryCount);
 
   /// Parse YAML formatted [map] to an object.
   factory AsserestProperty.parse(YamlMap map) {
@@ -88,17 +102,11 @@ abstract class AsserestProperty {
     switch (url.scheme) {
       case "http":
       case "https":
-        String method = map["method"];
-        var body = map["body"];
-        if (!["GET", "HEAD"].contains(method.toUpperCase()) && body == null) {
-          throw ArgumentError.value(body, 'body',
-              "Illegal request with null body on $method request.");
-        }
         return AsserestHTTPProperty._(
             url,
-            method,
+            map["method"],
             UnmodifiableMapView(map["header"] ?? {}),
-            body,
+            map["body"],
             accessible,
             timeout,
             tryCount);

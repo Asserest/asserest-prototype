@@ -1,5 +1,8 @@
 {
     "yaml.schemas": {
-        "./schema/asserest_schema.json": "/schema/example.yaml"
+        "./schema/asserest_schema.json": [
+            "/schema/example.yaml",
+            "/test_assets/**/*.yaml"
+        ]
     }
 }

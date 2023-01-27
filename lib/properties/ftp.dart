@@ -11,7 +11,7 @@ class AsserestFTPProperty extends AsserestProperty {
   /// Specify [ftpconn.SecurityType] uses for FTP connection.
   final ftpconn.SecurityType security;
 
-  const AsserestFTPProperty._(Uri url, this.username, this.password,
+  AsserestFTPProperty._(Uri url, this.username, this.password,
       this.security, bool accessible, int timeout, int? tryCount)
       : super._(url, accessible, timeout, tryCount);
 

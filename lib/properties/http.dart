@@ -15,9 +15,19 @@ class AsserestHTTPProperty extends AsserestProperty {
   /// JSON [String] automatically.
   final dynamic body;
 
-  const AsserestHTTPProperty._(Uri url, this.method, this.headers, this.body,
+  AsserestHTTPProperty._(Uri url, this.method, this.headers, this.body,
       bool accessible, int timeout, int? tryCount)
-      : super._(url, accessible, timeout, tryCount);
+      : super._(url, accessible, timeout, tryCount) {
+        if (!["GET", "HEAD"].contains(method.toUpperCase()) && body == null) {
+          throw ArgumentError.value(body, 'body',
+              "Illegal request with null body on $method request.");
+        } else if (body != null &&
+            body is! String &&
+            body is! Map &&
+            body is! List) {
+          throw TypeError();
+        }
+      }
 
   @override
   int get hashCode => super.hashCode + quiver.hash3(method, headers, body);

@@ -50,9 +50,9 @@ class _AsserestReport implements AsserestReport {
 
 List<AsyncTask> _tlr() => [
       AsserestHTTPTester._(
-          AsserestProperty.createHttp(url: Uri(), method: "GET")),
+          AsserestProperty.createHttp(url: "example.com", method: "GET", tryCount: 1)),
       AsserestFTPTester._(
-          AsserestProperty.createFtp(url: Uri(), security: SecurityType.FTP))
+          AsserestProperty.createFtp(url: "example.com", security: SecurityType.FTP))
     ];
 
 abstract class AsserestParallelTester<T extends AsserestTester>
