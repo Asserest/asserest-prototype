@@ -26,8 +26,10 @@ jobs:
         run: dart pub get
       - name: Run test
         run: dart test
+      - name: Generate out directory
+        run: mkdir out
       - name: Compile to binary
-        run: dart compile exe bin/asserest.dart --output='out/'
+        run: dart compile exe bin/asserest.dart --output='./out/asserest.bin'
       - name: Upload binary
         uses: actions/upload-artifact@v3
         with:
