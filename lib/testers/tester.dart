@@ -55,15 +55,19 @@ List<AsyncTask> _tlr() => [
           AsserestProperty.createFtp(url: "example.com", security: SecurityType.FTP))
     ];
 
+/// Run multiple [AsserestTester] in parallel.
 abstract class AsserestParallelTester<T extends AsserestTester>
     implements UnmodifiableListView<T> {
   // ignore: unused_element
   const AsserestParallelTester._();
 
+  /// Create new parallel testers with given [source] and [threads]
+  /// uses for computing.
   factory AsserestParallelTester(Iterable<T> source, {int threads = 1}) =>
       _AsserestParallelTester(source.cast<_AsserestTester>(), threads)
           as AsserestParallelTester<T>;
 
+  /// Assign parallel tester from [AsserestProperties] and specify [threads].
   factory AsserestParallelTester.fromProperties(AsserestProperties properties, {int threads = 1}) =>
   _AsserestParallelTester(properties.map<_AsserestTester>((e) {
     switch (e.runtimeType) {
@@ -76,8 +80,12 @@ abstract class AsserestParallelTester<T extends AsserestTester>
     }
   })) as AsserestParallelTester<T>;
 
+  /// Activate all testes in parallel and return [Stream] for receiving [AsserestReport].
   Stream<AsserestReport> runAllTest();
 
+  /// Terminate this parallel process.
+  /// 
+  /// It must be called inside [StreamSubscription.onDone] from [runAllTest].
   Future<bool> close();
 }
 

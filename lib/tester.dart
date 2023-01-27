@@ -37,7 +37,9 @@ abstract class AsserestReport {
   String toString();
 }
 
+/// Test connectivity by given [property].
 abstract class AsserestTester<T extends AsserestProperty> {
+  /// An [AsserestProperty] uses for running this test.
   T get property;
 
   const AsserestTester._();

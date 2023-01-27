@@ -1,5 +1,6 @@
 part of 'tester.dart';
 
+/// [AsserestTester] uses for testing HTTP connection.
 class AsserestHTTPTester extends _AsserestTester<AsserestHTTPProperty> {
   AsserestHTTPTester._(super.property);
 
