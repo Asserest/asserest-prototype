@@ -27,7 +27,7 @@ jobs:
           - ubuntu-latest
         sdk:
           - stable
-          - beta
+          # - beta
           - dev
     runs-on: ${{ matrix.os }}
     steps:
