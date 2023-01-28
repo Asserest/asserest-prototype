@@ -90,10 +90,10 @@ cd asserest
 
 dart pub get
 
-dart compile exe bin/asserest.dart --output='out/'
+dart compile exe bin/asserest.dart
 ```
 
-The compiled binary will be generated under `out` directory.
+The compiled binary will be generated under `bin` directory.
 
 ## Import as library
 

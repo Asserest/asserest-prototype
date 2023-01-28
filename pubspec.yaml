@@ -1,7 +1,7 @@
 name: asserest
 description: Console application for verifing provided address can be access on client network
 publish_to: 'none'
-version: 1.0.0-beta.2
+version: 1.0.0-beta.3
 repository: https://github.com/rk0cc/asserest
 environment:
   sdk: '>2.18.999 <4.0.0'
@@ -12,7 +12,7 @@ dependencies:
   ftpconnect: ^2.0.5
   meta: ^1.8.0
   quiver: ^3.2.1
-  args: ^2.3.2
+  args: '>=2.3.2 <2.4.0'
   ansicolor: ^2.0.1
   async_task: ^1.0.20
   sprintf: ^7.0.0
