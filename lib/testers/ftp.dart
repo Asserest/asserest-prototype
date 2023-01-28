@@ -27,7 +27,9 @@ class AsserestFTPTester extends _AsserestTester<AsserestFTPProperty> {
 
       await ftpConn.connect();
 
-      for (int count = 0; count < (property.tryCount ?? 1); count++) {
+      for (int count = 0;
+          count < (property.tryCount ?? 1) && !result;
+          count++) {
         for (String dirName in property.url.pathSegments) {
           if (!await ftpConn.changeDirectory(dirName)) {
             result = await ftpConn.existFile(dirName);

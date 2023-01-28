@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-//import 'dart:isolate';
 
 import 'package:async_task/async_task.dart';
 import 'package:ftpconnect/ftpconnect.dart';
@@ -15,6 +14,11 @@ import '../tester.dart';
 
 part 'ftp.dart';
 part 'http.dart';
+
+// TODO: Update version before release.
+const String _version = "1.0.0-beta.3";
+
+String get testerVersion => _version;
 
 abstract class _AsserestTester<T extends AsserestProperty>
     extends AsyncTask<T, AsserestReport> implements AsserestTester<T> {

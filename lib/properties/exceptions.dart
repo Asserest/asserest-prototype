@@ -12,6 +12,8 @@ class UnsupportUriFormatException extends FormatException {
   String get message => "${super.message} (Parsed source $source)";
 }
 
+/// Extended [FileSystemException] from [YamlException]
+/// during parsing script. 
 class YamlFileException extends FileSystemException {
   final YamlException _e;
 

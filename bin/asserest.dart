@@ -10,8 +10,6 @@ import 'package:sprintf/sprintf.dart';
 
 import 'report.dart';
 
-const _version = "1.0.0-beta.1";
-
 List<dynamic> _resolveConfig(List<String> arguments) {
   final ArgParser parser = ArgParser(allowTrailingOptions: false)
     ..addOption("thread",
@@ -23,7 +21,11 @@ List<dynamic> _resolveConfig(List<String> arguments) {
         help: "Basically just ignore URL that causing error during parsing.",
         defaultsTo: false,
         negatable: false)
-    ..addFlag("version", abbr: "v", help: "Print Asserest version", defaultsTo: false, negatable: false)
+    ..addFlag("version",
+        abbr: "v",
+        help: "Print Asserest version",
+        defaultsTo: false,
+        negatable: false)
     ..addFlag("help",
         abbr: "h",
         help: "Print usage of asserest.",
@@ -41,7 +43,7 @@ List<dynamic> _resolveConfig(List<String> arguments) {
   }
 
   if (args["version"]) {
-    print(_version);
+    print(testerVersion);
     exit(0);
   } else if (args["help"]) {
     String binName =
