@@ -57,4 +57,4 @@ echo "Asserest has been installed into your home directory."
 cd $OGPWD
 unset $DART_VERSION
 unset $ASSEREST_BRANCHES
-unser $OGPWD
+unset $OGPWD
