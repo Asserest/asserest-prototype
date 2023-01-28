@@ -74,7 +74,7 @@
                             "type": "object",
                             "description": "Header uses for making HTTP request.",
                             "patternProperties": {
-                                "^([A-Z][A-Za-z]*-)*[A-Z][A-Za-z]*$": {
+                                "^([A-Z][A-Za-z]*-)+[A-Z][A-Za-z]*$": {
                                     "type": "string"
                                 }
                             },
@@ -84,6 +84,7 @@
                             "description": "Body that uses for making request.",
                             "type": [
                                 "object",
+                                "array",
                                 "string"
                             ]
                         }
