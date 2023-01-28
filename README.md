@@ -112,6 +112,21 @@ dependencies:
 
 Then, run `pub get` command if necessary.
 
+### Alternative one shell script install for macOS and Linux
+
+**You are required to install these tools before running script:**
+
+* **wget**
+* **git**
+
+For UNIX based user (macOS and Linux), it can be compiled by a shell script file from:
+
+```
+https://raw.githubusercontent.com/rk0cc/asserest/main/asserest_unix_autobuild.sh
+```
+
+The binary `asserest` will be installed in your home directory already.
+
 ## License
 
 * Under `bin` directory: MIT License
