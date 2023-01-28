@@ -64,6 +64,7 @@ fi
 
 echo "Asserest has been installed into your home directory."
 cd $OGPWD
+unset -f dart_init
 unset $DART_VERSION
 unset $ASSEREST_BRANCHES
 unset $OGPWD
