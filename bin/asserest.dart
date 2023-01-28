@@ -37,7 +37,7 @@ List<dynamic> _resolveConfig(List<String> arguments) {
   } on FormatException catch (err) {
     print(err.message);
     print("Type 'asserest -h' to display command usages");
-    exit(1);
+    exit(2);
   }
 
   if (args["version"]) {
@@ -87,7 +87,7 @@ List<dynamic> _resolveConfig(List<String> arguments) {
   } on StateError catch (err) {
     print(err.message);
     print("Type 'asserest -h' to display command usages");
-    exit(2);
+    exit(3);
   }
 }
 
@@ -126,6 +126,8 @@ void main(List<String> arguments) async {
       ..writeln();
 
     print(buf);
+
+    exit(analyser.failureCount > 0 ? 1 : 0);
   }
 
   testProc
@@ -135,5 +137,6 @@ void main(List<String> arguments) async {
       await tester.close();
 
       print(err);
+      exit(4);
     });
 }

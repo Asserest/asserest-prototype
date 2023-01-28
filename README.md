@@ -95,6 +95,23 @@ dart compile exe bin/asserest.dart --output='out/'
 
 The compiled binary will be generated under `out` directory.
 
+## Import as library
+
+Dart (or Flutter) allows import library from Git directly. In the project's `pubspec.yaml`,
+you need to insert this property under `dependencies`:
+
+```yaml
+# Name, description and other mandatory stuff
+dependencies:
+  asserest:
+    git:
+      url: https://github.com/rk0cc/asserest.git
+      ref: 1.0.0-beta.2 # It's better to uses tag's name.
+# Additional settings (e.g. `flutter`)
+```
+
+Then, run `pub get` command if necessary.
+
 ## License
 
 * Under `bin` directory: MIT License
